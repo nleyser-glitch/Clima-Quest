@@ -4,313 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clima-Quest | Evaluación de Clima Laboral</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root {
-            --bg-primary: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --accent: #2563EB;
-            --accent-hover: #1D4ED8;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --radius: 12px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-primary); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background: var(--bg-card); width: 100%; max-width: 800px; padding: 32px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-        h1, h2, h3 { color: var(--text-main); margin-bottom: 12px; }
-        p { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
-        
-        .btn { background-color: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; text-decoration: none; display: inline-block; }
-        .btn:hover { background-color: var(--accent-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { background: #F1F5F9; }
-        .btn-danger { background: #EF4444; color: white; }
-        .btn-danger:hover { background: #DC2626; }
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
-        select, input[type="text"], input[type="password"] { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: #FFF; font-size: 14px; }
-        select:focus, input:focus { border-color: var(--accent); }
-
-        .scale-options { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; }
-        .scale-btn { flex: 1; padding: 12px 0; border: 1px solid var(--border); background: white; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: center; }
-        .scale-btn.selected { background: var(--accent); color: white; border-color: var(--accent); }
-
-        .hidden { display: none !important; }
-        .metric-card { background: #F8FAFC; padding: 20px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .metric-value { font-size: 32px; font-weight: 700; color: var(--accent); }
-        .metric-label { font-size: 13px; color: var(--text-muted); }
+        body { font-family: sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; max-width: 600px; text-align: center; }
+        h1 { color: #2563eb; margin-bottom: 10px; }
+        p { color: #64748b; margin-bottom: 20px; }
+        .btn { background-color: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin: 5px; }
+        .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: #0f172a; }
+        .hidden { display: none; }
+        .scale { display: flex; justify-content: space-between; margin: 20px 0; }
+        .scale-btn { padding: 10px 15px; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .scale-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+        input[type="password"] { padding: 8px; width: 80%; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="screen-welcome">
-        <h1>Clima-Quest ALINEA</h1>
-        <p>Plataforma interactiva para la evaluación del clima laboral. Selecciona tu rol para continuar.</p>
-        <div class="grid-2">
-            <button class="btn" onclick="startSurvey()">Soy Colaborador (Realizar Test)</button>
-            <button class="btn btn-outline" onclick="showAdminLogin()">Panel Administrador</button>
-        </div>
+<div class="card">
+    <!-- INICIO -->
+    <div id="v-welcome">
+        <h1>Clima-Quest</h1>
+        <p>Evaluación interactiva de clima laboral.</p>
+        <button class="btn" onclick="goTo('v-survey')">Iniciar Test Colaborador</button>
+        <button class="btn btn-outline" onclick="goTo('v-admin')">Panel Administrador</button>
     </div>
 
-    <div id="screen-admin-login" class="hidden">
-        <h2>Acceso Administrativo</h2>
-        <p>Ingresa la contraseña de administrador para ver las métricas en tiempo real.</p>
-        <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" id="admin-pass" placeholder="Ingresa contraseña">
-        </div>
-        <button class="btn" onclick="loginAdmin()">Ingresar</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Volver</button>
+    <!-- ADMIN -->
+    <div id="v-admin" class="hidden">
+        <h2>Panel de Administración</h2>
+        <p>Ingresa la contraseña para revisar métricas.</p>
+        <input type="password" id="pass" placeholder="Contraseña"><br>
+        <button class="btn" onclick="checkAdmin()">Ingresar</button>
+        <button class="btn btn-outline" onclick="goTo('v-welcome')">Volver</button>
     </div>
 
-    <div id="screen-collab-setup" class="hidden">
-        <h2>Datos del Colaborador</h2>
-        <p>Por favor, completa los campos requeridos antes de iniciar el test.</p>
-        <div class="form-group">
-            <label>Área / Departamento</label>
-            <select id="user-area">
-                <option value="">Selecciona una opción</option>
-                <option value="Operaciones">Operaciones</option>
-                <option value="Comercial">Comercial</option>
-                <option value="Administración">Administración</option>
-                <option value="TI / Tecnología">TI / Tecnología</option>
-                <option value="Recursos Humanos">Recursos Humanos</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Sede</label>
-            <select id="user-sede">
-                <option value="">Selecciona una opción</option>
-                <option value="Sede Principal">Sede Principal</option>
-                <option value="Sede Norte">Sede Norte</option>
-                <option value="Sede Sur">Sede Sur</option>
-            </select>
-        </div>
-        <button class="btn" onclick="beginQuestions()">Comenzar Evaluación</button>
+    <!-- DASHBOARD -->
+    <div id="v-dash" class="hidden">
+        <h2>Métricas del Clima</h2>
+        <h3 style="font-size: 36px; color: #2563eb;" id="count">0</h3>
+        <p>Evaluaciones registradas</p>
+        <button class="btn btn-outline" onclick="resetData()">Reiniciar Contador a 0</button>
+        <button class="btn btn-outline" onclick="goTo('v-welcome')">Cerrar Sesión</button>
     </div>
 
-    <div id="screen-survey" class="hidden">
-        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="q-progress">Pregunta 1 de 5</span>
-        <h3 id="q-text" style="margin-top: 8px;">Texto de la pregunta</h3>
-        <div class="scale-options">
-            <button class="scale-btn" onclick="selectScore(1)">1<br><small>Totalmente en desacuerdo</small></button>
-            <button class="scale-btn" onclick="selectScore(2)">2</button>
-            <button class="scale-btn" onclick="selectScore(3)">3</button>
-            <button class="scale-btn" onclick="selectScore(4)">4</button>
-            <button class="scale-btn" onclick="selectScore(5)">5<br><small>Totalmente de acuerdo</small></button>
+    <!-- PREGUNTAS -->
+    <div id="v-survey" class="hidden">
+        <h3 id="q-title">Pregunta 1</h3>
+        <p id="q-txt">Siento que mi opinión es valorada en el equipo.</p>
+        <div class="scale">
+            <button class="scale-btn" onclick="setVal(1)">1</button>
+            <button class="scale-btn" onclick="setVal(2)">2</button>
+            <button class="scale-btn" onclick="setVal(3)">3</button>
+            <button class="scale-btn" onclick="setVal(4)">4</button>
+            <button class="scale-btn" onclick="setVal(5)">5</button>
         </div>
-        <div style="margin-top: 24px; display: flex; justify-content: space-between;">
-            <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Cancelar</button>
-            <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Siguiente</button>
-        </div>
+        <button class="btn" id="btn-next" onclick="nextQ()" disabled>Siguiente</button>
     </div>
 
-    <div id="screen-thanks" class="hidden" style="text-align: center;">
-        <h2 style="color: var(--success);">¡Evaluación Completada!</h2>
-        <p>Tus respuestas han sido registradas de forma anónima y segura. Gracias por participar en Clima-Quest.</p>
-        <button class="btn" onclick="resetToWelcome()">Volver al Inicio</button>
-    </div>
-
-    <div id="screen-dashboard" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2>Dashboard en Tiempo Real</h2>
-            <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Cerrar Sesión</button>
-        </div>
-        <div class="grid-2">
-            <div class="metric-card">
-                <div class="metric-value" id="total-responses">0</div>
-                <div class="metric-label">Evaluaciones Completadas</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value" id="avg-score">0.0</div>
-                <div class="metric-label">Promedio General (Escala 1-5)</div>
-            </div>
-        </div>
-        <div style="margin-bottom: 24px;">
-            <canvas id="chart-area" style="max-height: 250px;"></canvas>
-        </div>
-        <div style="display: flex; gap: 12px;">
-            <button class="btn" onclick="exportToExcel()">Exportar a Excel (.xlsx)</button>
-            <button class="btn btn-danger" onclick="clearData()">Borrar / Reiniciar Métricas</button>
-        </div>
+    <!-- FIN -->
+    <div id="v-thanks" class="hidden">
+        <h2 style="color: #10b981;">¡Gracias por participar!</h2>
+        <p>Tu respuesta ha sido guardada de forma totalmente anónima.</p>
+        <button class="btn" onclick="goTo('v-welcome')">Volver al Inicio</button>
     </div>
 </div>
 
 <script>
-    const questions = [
-        "Siento que mi opinión es valorada en mi equipo de trabajo.",
-        "Cuento con las herramientas necesarias para realizar mis funciones.",
-        "Existe un ambiente de respeto y colaboración en mi área.",
-        "Recibo retroalimentación oportuna sobre mi desempeño.",
-        "Recomendaría esta organización como un excelente lugar para trabajar."
+    const items = [
+        "Siento que mi opinión es valorada en el equipo.",
+        "Cuento con las herramientas necesarias para mi trabajo.",
+        "Existe un ambiente de respeto en mi área.",
+        "Recibo retroalimentación oportuna de mi desempeño.",
+        "Recomendaría esta empresa para trabajar."
     ];
+    let idx = 0;
+    let selected = null;
 
-    let currentQuestionIndex = 0;
-    let currentAnswers = [];
-    let selectedCurrentScore = null;
-    let chartInstance = null;
-
-    function getStoredData() {
-        return JSON.parse(localStorage.getItem('cq_clean_v3') || '[]');
+    function goTo(id) {
+        document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
     }
 
-    function saveResponses(responses) {
-        localStorage.setItem('cq_clean_v3', JSON.stringify(responses));
-    }
-
-    function showScreen(screenId) {
-        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    function startSurvey() {
-        showScreen('screen-collab-setup');
-    }
-
-    function showAdminLogin() {
-        document.getElementById('admin-pass').value = '';
-        showScreen('screen-admin-login');
-    }
-
-    function loginAdmin() {
-        const pass = document.getElementById('admin-pass').value;
-        if (pass === 'alinea2026') {
-            loadDashboard();
-            showScreen('screen-dashboard');
+    function checkAdmin() {
+        if (document.getElementById('pass').value === 'alinea2026') {
+            document.getElementById('count').innerText = localStorage.getItem('cq_total') || '0';
+            goTo('v-dash');
         } else {
-            alert('Contraseña incorrecta.');
+            alert('Contraseña incorrecta');
         }
     }
 
-    function beginQuestions() {
-        const area = document.getElementById('user-area').value;
-        const sede = document.getElementById('user-sede').value;
-        if (!area || !sede) {
-            alert('Por favor selecciona tu Área y Sede.');
-            return;
-        }
-        currentQuestionIndex = 0;
-        currentAnswers = [];
-        loadQuestion();
-        showScreen('screen-survey');
+    function resetData() {
+        localStorage.setItem('cq_total', '0');
+        document.getElementById('count').innerText = '0';
+        alert('Contador reiniciado a 0');
     }
 
-    function loadQuestion() {
-        selectedCurrentScore = null;
-        document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('selected'));
-        document.getElementById('btn-next').disabled = true;
-        document.getElementById('q-progress').innerText = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
-        document.getElementById('q-text').innerText = questions[currentQuestionIndex];
-    }
-
-    function selectScore(score) {
-        selectedCurrentScore = score;
-        document.querySelectorAll('.scale-btn').forEach((btn, index) => {
-            btn.classList.toggle('selected', index + 1 === score);
+    function setVal(v) {
+        selected = v;
+        document.querySelectorAll('.scale-btn').forEach((b, i) => {
+            b.classList.toggle('active', i + 1 === v);
         });
         document.getElementById('btn-next').disabled = false;
     }
 
-    function nextQuestion() {
-        if (selectedCurrentScore === null) return;
-        currentAnswers.push(selectedCurrentScore);
-
-        if (currentQuestionIndex + 1 < questions.length) {
-            currentQuestionIndex++;
-            loadQuestion();
+    function nextQ() {
+        if (selected === null) return;
+        idx++;
+        if (idx < items.length) {
+            document.getElementById('q-title').innerText = 'Pregunta ' + (idx + 1);
+            document.getElementById('q-txt').innerText = items[idx];
+            selected = null;
+            document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-next').disabled = true;
         } else {
-            const responses = getStoredData();
-            responses.push({
-                timestamp: new Date().toISOString(),
-                area: document.getElementById('user-area').value,
-                sede: document.getElementById('user-sede').value,
-                scores: currentAnswers,
-                avg: (currentAnswers.reduce((a, b) => a + b, 0) / currentAnswers.length).toFixed(2)
-            });
-            saveResponses(responses);
-            showScreen('screen-thanks');
-        }
-    }
-
-    function resetToWelcome() {
-        document.getElementById('user-area').value = '';
-        document.getElementById('user-sede').value = '';
-        showScreen('screen-welcome');
-    }
-
-    function loadDashboard() {
-        const data = getStoredData();
-        document.getElementById('total-responses').innerText = data.length;
-
-        if (data.length === 0) {
-            document.getElementById('avg-score').innerText = '0.0';
-            if (chartInstance) chartInstance.destroy();
-            return;
-        }
-
-        const totalSum = data.reduce((acc, curr) => acc + parseFloat(curr.avg), 0);
-        document.getElementById('avg-score').innerText = (totalSum / data.length).toFixed(1);
-
-        const areaCounts = {};
-        data.forEach(item => {
-            areaCounts[item.area] = (areaCounts[item.area] || 0) + 1;
-        });
-
-        const ctx = document.getElementById('chart-area').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-
-        chartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(areaCounts),
-                datasets: [{
-                    label: 'Respuestas por Área',
-                    data: Object.values(areaCounts),
-                    backgroundColor: '#2563EB'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-            }
-        });
-    }
-
-    function exportToExcel() {
-        const data = getStoredData();
-        if (data.length === 0) {
-            alert('No hay respuestas registradas para exportar.');
-            return;
-        }
-
-        const exportData = data.map((item, index) => ({
-            'ID': index + 1,
-            'Fecha/Hora': item.timestamp,
-            'Área': item.area,
-            'Sede': item.sede,
-            'Promedio': item.avg,
-            ...item.scores.reduce((acc, score, idx) => ({ ...acc, [`P${idx + 1}`]: score }), {})
-        }));
-
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Respuestas");
-        XLSX.writeFile(wb, "Reporte_Clima_Quest.xlsx");
-    }
-
-    function clearData() {
-        if (confirm('¿Estás seguro de reiniciar todas las respuestas a cero? Esta acción no se puede deshacer.')) {
-            localStorage.removeItem('cq_clean_v3');
-            loadDashboard();
+            let curr = parseInt(localStorage.getItem('cq_total') || '0');
+            localStorage.setItem('cq_total', (curr + 1).toString());
+            idx = 0;
+            selected = null;
+            goTo('v-thanks');
         }
     }
 </script>
