@@ -51,7 +51,6 @@
 <body>
 
 <div class="container">
-    <!-- PANTALLA INICIAL -->
     <div id="screen-welcome">
         <h1>Clima-Quest ALINEA</h1>
         <p>Plataforma interactiva para la evaluación del clima laboral. Selecciona tu rol para continuar.</p>
@@ -61,7 +60,6 @@
         </div>
     </div>
 
-    <!-- PANTALLA LOGIN ADMIN -->
     <div id="screen-admin-login" class="hidden">
         <h2>Acceso Administrativo</h2>
         <p>Ingresa la contraseña de administrador para ver las métricas en tiempo real.</p>
@@ -73,7 +71,6 @@
         <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Volver</button>
     </div>
 
-    <!-- PANTALLA REGISTRO COLABORADOR -->
     <div id="screen-collab-setup" class="hidden">
         <h2>Datos del Colaborador</h2>
         <p>Por favor, completa los campos requeridos antes de iniciar el test.</p>
@@ -100,7 +97,6 @@
         <button class="btn" onclick="beginQuestions()">Comenzar Evaluación</button>
     </div>
 
-    <!-- PANTALLA PREGUNTAS -->
     <div id="screen-survey" class="hidden">
         <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="q-progress">Pregunta 1 de 5</span>
         <h3 id="q-text" style="margin-top: 8px;">Texto de la pregunta</h3>
@@ -117,14 +113,12 @@
         </div>
     </div>
 
-    <!-- PANTALLA GRACIAS -->
     <div id="screen-thanks" class="hidden" style="text-align: center;">
         <h2 style="color: var(--success);">¡Evaluación Completada!</h2>
         <p>Tus respuestas han sido registradas de forma anónima y segura. Gracias por participar en Clima-Quest.</p>
         <button class="btn" onclick="resetToWelcome()">Volver al Inicio</button>
     </div>
 
-    <!-- PANTALLA DASHBOARD ADMIN -->
     <div id="screen-dashboard" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2>Dashboard en Tiempo Real</h2>
@@ -165,11 +159,11 @@
     let chartInstance = null;
 
     function getStoredData() {
-        return JSON.parse(localStorage.getItem('cq_responses_v2') || '[]');
+        return JSON.parse(localStorage.getItem('cq_clean_v3') || '[]');
     }
 
     function saveResponses(responses) {
-        localStorage.setItem('cq_responses_v2', JSON.stringify(responses));
+        localStorage.setItem('cq_clean_v3', JSON.stringify(responses));
     }
 
     function showScreen(screenId) {
@@ -315,7 +309,7 @@
 
     function clearData() {
         if (confirm('¿Estás seguro de reiniciar todas las respuestas a cero? Esta acción no se puede deshacer.')) {
-            localStorage.removeItem('cq_responses_v2');
+            localStorage.removeItem('cq_clean_v3');
             loadDashboard();
         }
     }
