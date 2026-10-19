@@ -1,346 +1,225 @@
 <!DOCTYPE html>
-<html>
-
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JSFiddle y302xmpw</title>
-
-  <style>
-    
-  </style>
-
-  
-</head>
-<body>
-  <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clima-Quest | ALINEA</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .page-section { display: none; }
-    .page-section.active { display: block !important; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima-Quest | ALINEA</title>
+    <style>
+        :root {
+            --bg-main: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --accent: #2563EB;
+            --accent-hover: #1D4ED8;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-primary); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: var(--bg-card); width: 100%; max-width: 650px; padding: 32px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header { text-align: center; margin-bottom: 24px; }
+        .badge { background: #EFF6FF; color: var(--accent); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+        h1 { font-size: 26px; font-weight: 800; color: var(--text-primary); }
+        h2 { font-size: 20px; margin-bottom: 12px; color: var(--text-primary); }
+        p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+
+        .btn { background-color: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; transition: background 0.2s; }
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-primary); margin-top: 8px; }
+        .btn-outline:hover { background: #F1F5F9; }
+        
+        .form-group { margin-bottom: 16px; text-align: left; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        select, input[type="password"] { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px; outline: none; }
+        
+        .hidden { display: none !important; }
+        
+        .scale { display: flex; gap: 8px; margin: 20px 0; }
+        .scale-btn { flex: 1; padding: 14px 0; border: 1px solid var(--border); background: white; border-radius: 8px; font-weight: 700; cursor: pointer; color: var(--text-primary); }
+        .scale-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .metric-box { background: #F8FAFC; border: 1px solid var(--border); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .metric-num { font-size: 40px; font-weight: 800; color: var(--accent); }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body>
 
-  <!-- BARRA SUPERIOR -->
-  <header class="bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-sm sticky top-0 z-40">
-    <div class="flex items-center gap-3">
-      <div class="bg-amber-500 text-white p-2 rounded-xl font-bold text-lg shadow-md shadow-amber-500/20">⚔️</div>
-      <div>
-        <h1 class="font-extrabold text-lg text-slate-900 leading-none tracking-tight">CLIMA-QUEST</h1>
-        <p class="text-xs text-slate-500 font-medium">Diagnóstico Gamificado por ALINEA</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="roleBadge" class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">Rol: Admin</span>
-      <button id="logoutBtn" type="button" onclick="location.reload()" class="hidden text-xs text-slate-500 hover:text-slate-800 font-semibold underline">Salir</button>
-    </div>
-  </header>
-
-  <!-- CONTENEDOR PRINCIPAL -->
-  <main class="max-w-5xl w-full mx-auto p-4 md:p-6 flex-grow flex flex-col justify-center">
-
-    <!-- PANTALLA 1: SELECCIÓN DE ROL -->
-    <div id="vRole" class="page-section active space-y-6 text-center py-6">
-      <div>
-        <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-2 uppercase tracking-wider">Evaluación Organizacional</span>
-        <h2 class="text-3xl font-extrabold text-slate-900">Bienvenido a Clima-Quest</h2>
-        <p class="text-slate-500 text-sm mt-1">Plataforma anónima de clima laboral basada en el modelo ALINEA</p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-        <button type="button" onclick="goTo('vForm')" class="p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-amber-500 text-left shadow-sm hover:shadow-md transition">
-          <div class="text-3xl mb-2">👤</div>
-          <h3 class="text-lg font-bold text-slate-900">Soy Colaborador</h3>
-          <p class="text-xs text-slate-500 mt-1">Completa tu evaluación de clima de forma 100% anónima.</p>
-        </button>
-        <button type="button" onclick="openAdmin()" class="p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-sky-500 text-left shadow-sm hover:shadow-md transition">
-          <div class="text-3xl mb-2">🛡️</div>
-          <h3 class="text-lg font-bold text-slate-900">Soy Administrador</h3>
-          <p class="text-xs text-slate-500 mt-1">Accede al Dashboard de Analítica y reportes en Excel.</p>
-        </button>
-      </div>
+<div class="card">
+    <!-- PANTALLA INICIAL -->
+    <div id="screen-welcome">
+        <div class="header">
+            <span class="badge">ALINEA CONSULTORÍA</span>
+            <h1>Clima-Quest</h1>
+            <p>Diagnóstico de Clima Laboral</p>
+        </div>
+        <button class="btn" onclick="goTo('screen-setup')">Soy Colaborador (Realizar Test)</button>
+        <button class="btn btn-outline" onclick="goTo('screen-login')">Panel Administrador</button>
     </div>
 
-    <!-- PANTALLA 2: DATOS COLABORADOR -->
-    <div id="vForm" class="page-section max-w-md mx-auto w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-md space-y-4">
-      <h3 class="text-xl font-bold text-slate-900">Clasificación de Área</h3>
-      
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Periodo de Evaluación</label>
-        <select id="selPeriod" class="w-full p-3 rounded-xl border text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none">
-          <option value="2026 - 1er Semestre">2026 - 1er Semestre</option>
-          <option value="2026 - 2do Semestre">2026 - 2do Semestre</option>
-          <option value="2027 - 1er Semestre">2027 - 1er Semestre</option>
-          <option value="2027 - 2do Semestre">2027 - 2do Semestre</option>
-          <option value="Prueba / Piloto">Prueba / Piloto</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Empresa / Dirección</label>
-        <select id="selComp" onchange="onCompChange()" class="w-full p-3 rounded-xl border text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-          <option value="">-- Selecciona Opción --</option>
-          <option value="CLARO">CLARO</option>
-          <option value="BANCO DE GUAYAQUIL">BANCO DE GUAYAQUIL</option>
-          <option value="XTRIM">XTRIM</option>
-          <option value="ADMINISTRACIÓN">ADMINISTRACIÓN</option>
-        </select>
-      </div>
-
-      <div id="boxCamp" class="hidden">
-        <label id="lblCamp" class="block text-xs font-bold text-slate-700 uppercase mb-1">Campaña / Área</label>
-        <select id="selCamp" class="w-full p-3 rounded-xl border text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"></select>
-      </div>
-
-      <button type="button" onclick="startQuiz()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow transition">Comenzar Evaluación ➔</button>
+    <!-- PANTALLA LOGIN ADMIN -->
+    <div id="screen-login" class="hidden">
+        <h2>Acceso Administrador</h2>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="pass-input" placeholder="Ingresa la contraseña">
+        </div>
+        <button class="btn" onclick="login()">Ingresar</button>
+        <button class="btn btn-outline" onclick="goTo('screen-welcome')">Volver</button>
     </div>
 
-    <!-- PANTALLA 3: PREGUNTAS -->
-    <div id="vQuiz" class="page-section max-w-xl mx-auto w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-md space-y-6">
-      <div class="flex justify-between items-center border-b pb-3">
-        <div>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dimensión</span>
-          <h4 id="qDim" class="text-sm font-bold text-amber-600 uppercase">Mentores</h4>
+    <!-- PANTALLA DASHBOARD ADMIN -->
+    <div id="screen-dash" class="hidden">
+        <h2>Panel de Diagnóstico</h2>
+        <div class="metric-box">
+            <div class="metric-num" id="total-val">0</div>
+            <p style="margin:0;">Evaluaciones Completadas</p>
         </div>
-        <span id="qNum" class="text-xs font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Pregunta 1/20</span>
-      </div>
-      <p id="qText" class="text-base font-semibold text-slate-800 min-h-[60px] leading-relaxed">Cargando pregunta...</p>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
-        <button type="button" onclick="ans(1)" class="p-3 border rounded-xl hover:border-red-500 hover:bg-red-50 text-center transition group">
-          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🗡️</div>
-          <div class="text-xs font-bold text-slate-700">1 Pt</div>
-          <div class="text-[9px] text-slate-400">Espada Rota</div>
-        </button>
-        <button type="button" onclick="ans(2)" class="p-3 border rounded-xl hover:border-orange-500 hover:bg-orange-50 text-center transition group">
-          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🛡️</div>
-          <div class="text-xs font-bold text-slate-700">2 Pts</div>
-          <div class="text-[9px] text-slate-400">Escudo Agrietado</div>
-        </button>
-        <button type="button" onclick="ans(3)" class="p-3 border rounded-xl hover:border-amber-500 hover:bg-amber-50 text-center transition group">
-          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">📜</div>
-          <div class="text-xs font-bold text-slate-700">3 Pts</div>
-          <div class="text-[9px] text-slate-400">Pergamino Std</div>
-        </button>
-        <button type="button" onclick="ans(4)" class="p-3 border rounded-xl hover:border-sky-500 hover:bg-sky-50 text-center transition group">
-          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🧪</div>
-          <div class="text-xs font-bold text-slate-700">4 Pts</div>
-          <div class="text-[9px] text-slate-400">Poción Fuerza</div>
-        </button>
-        <button type="button" onclick="ans(5)" class="p-3 border rounded-xl hover:border-purple-500 hover:bg-purple-50 text-center transition group">
-          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🌟</div>
-          <div class="text-xs font-bold text-slate-700">5 Pts</div>
-          <div class="text-[9px] text-slate-400">Artefacto Leg.</div>
-        </button>
-      </div>
+        <button class="btn btn-outline" onclick="resetMetrics()">Reiniciar Métricas a 0</button>
+        <button class="btn btn-outline" onclick="goTo('screen-welcome')">Cerrar Sesión</button>
     </div>
 
-    <!-- PANTALLA 4: RESULTADO -->
-    <div id="vEnd" class="page-section max-w-md mx-auto w-full bg-white p-6 rounded-2xl border text-center space-y-4 shadow-lg">
-      <div class="text-5xl">🎉</div>
-      <h3 class="text-2xl font-bold text-slate-900">¡Misión Cumplida!</h3>
-      <p class="text-xs text-slate-500">Tus respuestas han sido registradas exitosamente de forma anónima.</p>
-      <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-        <span class="text-xs font-bold text-slate-400 uppercase">Tu Nivel de Reino Alcanzado</span>
-        <div id="resRealm" class="text-xl font-black text-amber-600 mt-1">Valhalla</div>
-      </div>
-      <button type="button" onclick="returnFromQuiz()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">Volver al Inicio</button>
+    <!-- PANTALLA REGISTRO COLABORADOR -->
+    <div id="screen-setup" class="hidden">
+        <h2>Registro de Colaborador</h2>
+        <div class="form-group">
+            <label>Empresa / Campaña</label>
+            <select id="sel-company" onchange="changeAreas()">
+                <option value="">-- Selecciona Empresa --</option>
+                <option value="XTRIM">XTRIM</option>
+                <option value="CLARO">CLARO</option>
+                <option value="BANCO DE GUAYAQUIL">BANCO DE GUAYAQUIL</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Área / Departamento</label>
+            <select id="sel-area">
+                <option value="">-- Selecciona Área --</option>
+            </select>
+        </div>
+        <button class="btn" onclick="startTest()">Comenzar Evaluación</button>
+        <button class="btn btn-outline" onclick="goTo('screen-welcome')">Cancelar</button>
     </div>
 
-    <!-- PANTALLA 5: DASHBOARD ADMIN -->
-    <div id="vAdmin" class="page-section space-y-6">
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-3 justify-between items-center">
-        <div>
-          <h3 class="font-bold text-lg text-slate-900">Panel de Control Administrador</h3>
-          <p class="text-xs text-slate-500">Analítica global de clima organizacional ALINEA</p>
+    <!-- PANTALLA PREGUNTAS -->
+    <div id="screen-questions" class="hidden">
+        <span style="font-size:12px; font-weight:700; color:var(--accent);" id="q-number">Pregunta 1 de 5</span>
+        <h3 id="q-title" style="margin: 12px 0 20px 0; font-size:16px;">Texto de la pregunta</h3>
+        
+        <div class="scale">
+            <button class="scale-btn" onclick="pickVal(1)">1</button>
+            <button class="scale-btn" onclick="pickVal(2)">2</button>
+            <button class="scale-btn" onclick="pickVal(3)">3</button>
+            <button class="scale-btn" onclick="pickVal(4)">4</button>
+            <button class="scale-btn" onclick="pickVal(5)">5</button>
         </div>
-        <div class="flex flex-wrap gap-2">
-          <button type="button" onclick="startTestFromAdmin()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition">🧪 Probar Evaluaciones</button>
-          <button type="button" onclick="clearData()" class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-xl transition">🗑️ Borrar Todo</button>
-          <button type="button" onclick="exportXLSX()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition">📥 Exportar Excel</button>
-        </div>
-      </div>
 
-      <!-- Filtros -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center">
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase">Periodo</label>
-          <select id="filterPeriod" onchange="updateAdmin()" class="p-2 border rounded-lg text-xs font-bold bg-slate-50">
-            <option value="ALL">Todos los Periodos</option>
-            <option value="2026 - 1er Semestre">2026 - 1er Semestre</option>
-            <option value="2026 - 2do Semestre">2026 - 2do Semestre</option>
-            <option value="2027 - 1er Semestre">2027 - 1er Semestre</option>
-            <option value="2027 - 2do Semestre">2027 - 2do Semestre</option>
-            <option value="Prueba / Piloto">Prueba / Piloto</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase">Empresa</label>
-          <select id="filterComp" onchange="updateAdmin()" class="p-2 border rounded-lg text-xs font-bold bg-slate-50">
-            <option value="ALL">Todas las Empresas</option>
-            <option value="CLARO">CLARO</option>
-            <option value="BANCO DE GUAYAQUIL">BANCO DE GUAYAQUIL</option>
-            <option value="XTRIM">XTRIM</option>
-            <option value="ADMINISTRACIÓN">ADMINISTRACIÓN</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Métricas Principales -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span class="text-xs font-bold text-slate-400 uppercase">Reino Dominante</span>
-          <div id="dRealm" class="text-lg font-black text-amber-600 mt-1">--</div>
-          <span class="text-[10px] text-slate-400">Basado en promedio %</span>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span class="text-xs font-bold text-slate-400 uppercase">Índice Global %</span>
-          <div id="dAvg" class="text-3xl font-black text-slate-900 mt-1">0%</div>
-          <span class="text-[10px] text-emerald-600 font-bold">Fórmula ALINEA</span>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span class="text-xs font-bold text-slate-400 uppercase">Riesgo Burnout</span>
-          <div id="dBurn" class="text-lg font-bold text-slate-700 mt-1">Bajo</div>
-          <span class="text-[10px] text-slate-400">Dimensión Poción Vida</span>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span class="text-xs font-bold text-slate-400 uppercase">Participación</span>
-          <div id="dCount" class="text-3xl font-black text-sky-600 mt-1">0</div>
-          <span class="text-[10px] text-slate-400">Evaluaciones totales</span>
-        </div>
-      </div>
-
-      <!-- Gráficos -->
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-900 uppercase mb-3">Salud por 5 Dimensiones (Radar)</h4>
-          <div class="h-60 flex items-center justify-center">
-            <canvas id="radarChart"></canvas>
-          </div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-900 uppercase mb-3">Comparativo por Áreas</h4>
-          <div class="h-60 flex items-center justify-center">
-            <canvas id="barChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabla de Respuestas -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h4 class="text-xs font-bold text-slate-900 uppercase">Registros Recientes en Base de Datos</h4>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="border-b bg-slate-50 text-slate-500 font-bold">
-                <th class="p-2.5">Periodo</th>
-                <th class="p-2.5">Empresa</th>
-                <th class="p-2.5">Campaña / Depto</th>
-                <th class="p-2.5">Puntaje</th>
-                <th class="p-2.5">Índice %</th>
-                <th class="p-2.5">Reino</th>
-                <th class="p-2.5 text-center">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody">
-              <tr><td colspan="7" class="p-3 text-center text-slate-400">Sin datos registrados</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <button class="btn" id="btn-next" onclick="nextQ()" disabled>Siguiente Pregunta</button>
     </div>
 
-  </main>
-
-  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
-    SISTEMA CLIMA-QUEST • <strong>ALINEA</strong>
-  </footer>
-
-  <!-- MODAL ADMIN -->
-  <div id="mAdmin" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-xl">
-      <h3 class="font-bold text-slate-900">Acceso Administrador</h3>
-      <input type="password" id="pAdmin" placeholder="Contraseña" class="w-full p-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-      <div class="flex gap-2">
-        <button type="button" onclick="closeAdmin()" class="flex-1 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancelar</button>
-        <button type="button" onclick="loginAdmin()" class="flex-1 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow">Entrar</button>
-      </div>
+    <!-- PANTALLA GRACIAS -->
+    <div id="screen-thanks" class="hidden" style="text-align:center;">
+        <h2 style="color:var(--success);">¡Evaluación Completada!</h2>
+        <p>Tus respuestas han sido guardadas con éxito.</p>
+        <button class="btn" onclick="goTo('screen-welcome')">Volver al Inicio</button>
     </div>
-  </div>
+</div>
 
-  <script>
-    var db = [];
-    try {
-      db = JSON.parse(localStorage.getItem('cq_db')) || [];
-    } catch(e) { db = []; }
+<script>
+    const orgData = {
+        "XTRIM": ["Fidelización", "Retención", "Calidad", "Talento Humano", "Operaciones", "Sistemas", "Servicios Generales"],
+        "CLARO": ["Renovación", "Hogar", "Migración"],
+        "BANCO DE GUAYAQUIL": ["Colocación", "Avisos"]
+    };
 
-    var isAdminSession = false;
-
-    var qList = [
-      {d:"Mentores",t:"Mi Líder me proporciona un mapa claro de los objetivos antes de iniciar una misión."},
-      {d:"Mentores",t:"Siento libertad y autonomía para ejecutar mis tareas sin vigilancia sofocante."},
-      {d:"Mentores",t:"Cuando me equivoco, mi líder me da retroalimentación constructiva para subir de nivel."},
-      {d:"Mentores",t:"Mi líder escucha las propuestas e innovaciones del equipo antes de tomar decisiones."},
-      {d:"Refugio",t:"Cuento con el equipamiento adecuado (software, hardware) para mis misiones."},
-      {d:"Refugio",t:"El espacio físico/digital donde trabajo es un refugio seguro, cómodo y adecuado."},
-      {d:"Refugio",t:"Los procesos e instrucciones no son un laberinto burocrático."},
-      {d:"Refugio",t:"Cuando un recurso o herramienta falla, el equipo de soporte responde a tiempo."},
-      {d:"Hermandad",t:"En mi escuadrón nos apoyamos mutuamente cuando las misiones se vuelven difíciles."},
-      {d:"Hermandad",t:"Existe una alianza de confianza con las demás áreas y la comunicación fluye."},
-      {d:"Hermandad",t:"Se vive una cultura de respeto donde no se toleran comportamientos tóxicos."},
-      {d:"Hermandad",t:"Siento que pertenezco a un equipo con un propósito noble al que me da orgullo representar."},
-      {d:"Oro y Gloria",t:"Cuando hago un esfuerzo extraordinario, recibo el reconocimiento correspondiente."},
-      {d:"Oro y Gloria",t:"Siento que mi compensación y beneficios son justos respecto a la dificultad de mis batallas."},
-      {d:"Oro y Gloria",t:"Veo una ruta clara de progresión para crecer profesionalmente dentro del reino."},
-      {d:"Oro y Gloria",t:"La organización me da oportunidades para aprender nuevas habilidades."},
-      {d:"Poción Vida",t:"Al finalizar la jornada laboral, me queda suficiente energía (HP) para mi vida personal."},
-      {d:"Poción Vida",t:"El ritmo de trabajo y los plazos son realistas, evitando el colapso (burnout)."},
-      {d:"Poción Vida",t:"El reino respeta mis tiempos de descanso y desconexión fuera de horario."},
-      {d:"Poción Vida",t:"La organización se preocupa genuinamente por mi salud física, mental y emocional."}
+    const questionsList = [
+        "Siento que mi opinión es valorada en mi equipo de trabajo.",
+        "Cuento con las herramientas necesarias para realizar mis funciones.",
+        "Existe un ambiente de respeto y colaboración en mi área.",
+        "Recibo retroalimentación oportuna sobre mi desempeño.",
+        "Recomendaría esta organización como un excelente lugar para trabajar."
     ];
-    var qIdx = 0, answers = [], sPeriod = "", sComp = "", sCamp = "";
 
-    function deleteSingleRecord(realIndex) {
-      if (confirm('¿Deseas eliminar esta evaluación?')) {
-        db.splice(realIndex, 1);
-        saveLocal();
-        updateAdmin();
-      }
+    let currentQ = 0;
+    let selectedVal = null;
+
+    function goTo(screenId) {
+        document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
     }
 
-    function clearData() {
-      if (confirm('¿Deseas borrar TODOS los registros de la base de datos?')) {
-        db = [];
-        saveLocal();
-        updateAdmin();
-      }
+    function changeAreas() {
+        const company = document.getElementById('sel-company').value;
+        const areaSelect = document.getElementById('sel-area');
+        areaSelect.innerHTML = '<option value="">-- Selecciona Área --</option>';
+        if (company && orgData[company]) {
+            orgData[company].forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                areaSelect.appendChild(opt);
+            });
+        }
     }
 
-    function saveLocal() {
-      try {
-        localStorage.setItem('cq_db', JSON.stringify(db));
-      } catch(e){}
+    function login() {
+        const pass = document.getElementById('pass-input').value;
+        if (pass === 'alinea2026') {
+            document.getElementById('total-val').innerText = localStorage.getItem('cq_count_ok') || '0';
+            document.getElementById('pass-input').value = '';
+            goTo('screen-dash');
+        } else {
+            alert('Contraseña incorrecta');
+        }
     }
 
-    function goTo(sectionId) {
-      var sections = document.querySelectorAll('.page-section');
-      sections.forEach(function(s) { s.classList.remove('active'); });
-      var target = document.getElementById(sectionId);
-      if (target) target.classList.add('active
+    function resetMetrics() {
+        localStorage.setItem('cq_count_ok', '0');
+        document.getElementById('total-val').innerText = '0';
+        alert('Contador reiniciado a 0');
+    }
 
-  <script>
-    
-  </script>
+    function startTest() {
+        const comp = document.getElementById('sel-company').value;
+        const area = document.getElementById('sel-area').value;
+        if (!comp || !area) {
+            alert('Por favor selecciona tu Empresa y tu Área.');
+            return;
+        }
+        currentQ = 0;
+        loadQuestion();
+        goTo('screen-questions');
+    }
+
+    function loadQuestion() {
+        selectedVal = null;
+        document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn-next').disabled = true;
+        document.getElementById('q-number').innerText = 'Pregunta ' + (currentQ + 1) + ' de ' + questionsList.length;
+        document.getElementById('q-title').innerText = questionsList[currentQ];
+    }
+
+    function pickVal(val) {
+        selectedVal = val;
+        document.querySelectorAll('.scale-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx + 1 === val);
+        });
+        document.getElementById('btn-next').disabled = false;
+    }
+
+    function nextQ() {
+        if (selectedVal === null) return;
+        currentQ++;
+        if (currentQ < questionsList.length) {
+            loadQuestion();
+        } else {
+            let current = parseInt(localStorage.getItem('cq_count_ok') || '0');
+            localStorage.setItem('cq_count_ok', (current + 1).toString());
+            goTo('screen-thanks');
+        }
+    }
+</script>
 </body>
 </html>
