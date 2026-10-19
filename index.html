@@ -3,167 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clima-Quest | Evaluación de Clima Laboral</title>
+    <title>Clima-Quest ALINEA</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: #f1f5f9; color: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card { background: #ffffff; width: 100%; max-width: 650px; padding: 32px; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        h1 { color: #1e3a8a; font-size: 26px; margin-bottom: 8px; text-align: center; }
-        h2 { color: #1e3a8a; font-size: 20px; margin-bottom: 12px; }
-        p { color: #475569; font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
-        .btn { background-color: #2563eb; color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; margin-bottom: 10px; }
-        .btn:hover { background-color: #1d4ed8; }
-        .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: #0f172a; }
-        .btn-outline:hover { background: #f8fafc; }
-        .hidden { display: none !important; }
-        .scale { display: flex; gap: 8px; margin: 20px 0; }
-        .scale-btn { flex: 1; padding: 14px 0; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
-        .scale-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-        .metric-box { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; margin-bottom: 16px; }
-        .metric-num { font-size: 40px; font-weight: bold; color: #2563eb; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #1d4ed8; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .btn { background-color: #1d4ed8; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        .btn-secondary { background-color: #64748b; }
+        .hidden { display: none; }
+        input[type="password"], select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .scale { display: flex; justify-content: space-between; margin: 20px 0; gap: 5px; }
+        .scale button { flex: 1; padding: 10px; border: 1px solid #1d4ed8; background: white; color: #1d4ed8; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .scale button.selected { background: #1d4ed8; color: white; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <!-- PANTALLA INICIAL -->
-    <div id="screen-welcome">
+    <div id="v-home">
         <h1>Clima-Quest</h1>
-        <p style="text-align: center;">Plataforma de Evaluación de Clima Laboral</p>
-        <button class="btn" onclick="showScreen('screen-collab')">Soy Colaborador (Realizar Test)</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-admin-login')">Panel Administrador</button>
+        <p>Evaluación de Clima Laboral - ALINEA</p>
+        <button class="btn" onclick="show('v-collab')">Soy Colaborador (Test)</button>
+        <button class="btn btn-secondary" onclick="show('v-admin')">Panel Administrador</button>
     </div>
 
-    <!-- LOGIN ADMIN -->
-    <div id="screen-admin-login" class="hidden">
+    <!-- PANTALLA ADMIN -->
+    <div id="v-admin" class="hidden">
         <h2>Acceso Administrativo</h2>
-        <p>Ingresa la contraseña de administrador:</p>
-        <input type="password" id="admin-pass" class="form-control" placeholder="Contraseña">
-        <button class="btn" onclick="loginAdmin()">Ingresar</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Volver</button>
+        <input type="password" id="pass" placeholder="Ingresa contraseña">
+        <button class="btn" onclick="login()">Ingresar</button>
+        <button class="btn btn-secondary" onclick="show('v-home')">Volver</button>
     </div>
 
-    <!-- DASHBOARD ADMIN -->
-    <div id="screen-dashboard" class="hidden">
-        <h2>Panel de Métricas</h2>
-        <div class="metric-box">
-            <div class="metric-num" id="total-count">0</div>
-            <p style="margin:0;">Evaluaciones Registradas</p>
-        </div>
-        <button class="btn btn-outline" onclick="resetToZero()">Reiniciar Contador a 0</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Cerrar Sesión</button>
+    <!-- DASHBOARD -->
+    <div id="v-dash" class="hidden">
+        <h2>Dashboard</h2>
+        <p>Total de Respuestas Guardadas:</p>
+        <h1 id="count" style="font-size: 50px; color: #1d4ed8;">0</h1>
+        <button class="btn" onclick="clearData()">Reiniciar Contador a 0</button>
+        <button class="btn btn-secondary" onclick="show('v-home')">Cerrar Sesión</button>
     </div>
 
-    <!-- REGISTRO COLABORADOR -->
-    <div id="screen-collab" class="hidden">
-        <h2>Datos para la Evaluación</h2>
-        <p>Selecciona tu área antes de responder:</p>
-        <select id="user-area" class="form-control">
+    <!-- DATOS COLABORADOR -->
+    <div id="v-collab" class="hidden">
+        <h2>Registro</h2>
+        <select id="area">
             <option value="">-- Selecciona tu Área --</option>
             <option value="Operaciones">Operaciones</option>
             <option value="Comercial">Comercial</option>
             <option value="Administración">Administración</option>
-            <option value="TI">TI / Tecnología</option>
         </select>
-        <button class="btn" onclick="startSurvey()">Comenzar Evaluación</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-welcome')">Cancelar</button>
+        <button class="btn" onclick="startSurvey()">Comenzar</button>
+        <button class="btn btn-secondary" onclick="show('v-home')">Cancelar</button>
     </div>
 
-    <!-- PREGUNTAS -->
-    <div id="screen-survey" class="hidden">
-        <p id="q-number" style="font-weight:bold; color:#2563eb; margin-bottom:4px;">Pregunta 1 de 5</p>
-        <h2 id="q-text" style="font-size:18px;">Texto de la pregunta</h2>
+    <!-- TEST -->
+    <div id="v-test" class="hidden">
+        <h3 id="q-num">Pregunta 1 de 5</h3>
+        <p id="q-txt">Siento que mi opinión es valorada.</p>
         <div class="scale">
-            <button class="scale-btn" onclick="selectScore(1)">1</button>
-            <button class="scale-btn" onclick="selectScore(2)">2</button>
-            <button class="scale-btn" onclick="selectScore(3)">3</button>
-            <button class="scale-btn" onclick="selectScore(4)">4</button>
-            <button class="scale-btn" onclick="selectScore(5)">5</button>
+            <button onclick="setScore(1)">1</button>
+            <button onclick="setScore(2)">2</button>
+            <button onclick="setScore(3)">3</button>
+            <button onclick="setScore(4)">4</button>
+            <button onclick="setScore(5)">5</button>
         </div>
-        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Siguiente Pregunta</button>
+        <button class="btn" id="btn-next" onclick="nextQ()" disabled>Siguiente</button>
     </div>
 
     <!-- GRACIAS -->
-    <div id="screen-thanks" class="hidden" style="text-align:center;">
-        <h2 style="color:#10b981;">¡Evaluación Completada!</h2>
-        <p>Tus respuestas se han guardado de forma anónima. Gracias por participar.</p>
-        <button class="btn" onclick="showScreen('screen-welcome')">Volver al Inicio</button>
+    <div id="v-thanks" class="hidden">
+        <h2 style="color: #10b981;">¡Muchas Gracias!</h2>
+        <p>Tus respuestas han sido registradas de forma totalmente anónima.</p>
+        <button class="btn" onclick="show('v-home')">Finalizar</button>
     </div>
 </div>
 
 <script>
     const questions = [
-        "Siento que mi opinión es valorada en mi equipo de trabajo.",
-        "Cuento con las herramientas necesarias para realizar mis funciones.",
-        "Existe un ambiente de respeto y colaboración en mi área.",
-        "Recibo retroalimentación oportuna sobre mi desempeño.",
-        "Recomendaría esta organización como un excelente lugar para trabajar."
+        "Siento que mi opinión es valorada en mi equipo.",
+        "Cuento con las herramientas necesarias para trabajar.",
+        "Existe un ambiente de respeto en mi área.",
+        "Recibo retroalimentación oportuna sobre mi trabajo.",
+        "Recomendaría esta organización para trabajar."
     ];
+    let qIdx = 0;
+    let score = null;
 
-    let currentIdx = 0;
-    let selectedValue = null;
-
-    function showScreen(id) {
+    function show(id) {
         document.querySelectorAll('.card > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
     }
 
-    function loginAdmin() {
-        const pass = document.getElementById('admin-pass').value;
-        if (pass === 'alinea2026') {
-            const count = localStorage.getItem('cq_count_v4') || '0';
-            document.getElementById('total-count').innerText = count;
-            document.getElementById('admin-pass').value = '';
-            showScreen('screen-dashboard');
+    function login() {
+        if (document.getElementById('pass').value === 'alinea2026') {
+            document.getElementById('count').innerText = localStorage.getItem('cq_clean_v5') || '0';
+            document.getElementById('pass').value = '';
+            show('v-dash');
         } else {
-            alert('Contraseña incorrecta.');
+            alert('Contraseña incorrecta');
         }
     }
 
-    function resetToZero() {
-        if (confirm('¿Deseas reiniciar las métricas a cero?')) {
-            localStorage.setItem('cq_count_v4', '0');
-            document.getElementById('total-count').innerText = '0';
-        }
+    function clearData() {
+        localStorage.setItem('cq_clean_v5', '0');
+        document.getElementById('count').innerText = '0';
+        alert('Métricas reiniciadas a 0');
     }
 
     function startSurvey() {
-        const area = document.getElementById('user-area').value;
-        if (!area) {
-            alert('Por favor selecciona tu Área.');
+        if (!document.getElementById('area').value) {
+            alert('Por favor selecciona un área');
             return;
         }
-        currentIdx = 0;
-        loadQuestion();
-        showScreen('screen-survey');
+        qIdx = 0;
+        loadQ();
+        show('v-test');
     }
 
-    function loadQuestion() {
-        selectedValue = null;
-        document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
+    function loadQ() {
+        score = null;
+        document.querySelectorAll('.scale button').forEach(btn => btn.classList.remove('selected'));
         document.getElementById('btn-next').disabled = true;
-        document.getElementById('q-number').innerText = 'Pregunta ' + (currentIdx + 1) + ' de ' + questions.length;
-        document.getElementById('q-text').innerText = questions[currentIdx];
+        document.getElementById('q-num').innerText = 'Pregunta ' + (qIdx + 1) + ' de ' + questions.length;
+        document.getElementById('q-txt').innerText = questions[qIdx];
     }
 
-    function selectScore(val) {
-        selectedValue = val;
-        document.querySelectorAll('.scale-btn').forEach((btn, idx) => {
-            btn.classList.toggle('active', idx + 1 === val);
+    function setScore(val) {
+        score = val;
+        document.querySelectorAll('.scale button').forEach((btn, idx) => {
+            btn.classList.toggle('selected', idx + 1 === val);
         });
         document.getElementById('btn-next').disabled = false;
     }
 
-    function nextQuestion() {
-        if (selectedValue === null) return;
-        currentIdx++;
-        if (currentIdx < questions.length) {
-            loadQuestion();
+    function nextQ() {
+        if (score === null) return;
+        qIdx++;
+        if (qIdx < questions.length) {
+            loadQ();
         } else {
-            let currentCount = parseInt(localStorage.getItem('cq_count_v4') || '0');
-            localStorage.setItem('cq_count_v4', (currentCount + 1).toString());
-            showScreen('screen-thanks');
+            let current = parseInt(localStorage.getItem('cq_clean_v5') || '0');
+            localStorage.setItem('cq_clean_v5', (current + 1).toString());
+            show('v-thanks');
         }
     }
 </script>
