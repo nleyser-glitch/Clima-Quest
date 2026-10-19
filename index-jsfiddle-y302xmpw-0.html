@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle y302xmpw</title>
+
+  <style>
+    
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clima-Quest | ALINEA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .page-section { display: none; }
+    .page-section.active { display: block !important; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+  <!-- BARRA SUPERIOR -->
+  <header class="bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-sm sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+      <div class="bg-amber-500 text-white p-2 rounded-xl font-bold text-lg shadow-md shadow-amber-500/20">⚔️</div>
+      <div>
+        <h1 class="font-extrabold text-lg text-slate-900 leading-none tracking-tight">CLIMA-QUEST</h1>
+        <p class="text-xs text-slate-500 font-medium">Diagnóstico Gamificado por ALINEA</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="roleBadge" class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">Rol: Admin</span>
+      <button id="logoutBtn" type="button" onclick="location.reload()" class="hidden text-xs text-slate-500 hover:text-slate-800 font-semibold underline">Salir</button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-5xl w-full mx-auto p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+    <!-- PANTALLA 1: SELECCIÓN DE ROL -->
+    <div id="vRole" class="page-section active space-y-6 text-center py-6">
+      <div>
+        <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-2 uppercase tracking-wider">Evaluación Organizacional</span>
+        <h2 class="text-3xl font-extrabold text-slate-900">Bienvenido a Clima-Quest</h2>
+        <p class="text-slate-500 text-sm mt-1">Plataforma anónima de clima laboral basada en el modelo ALINEA</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+        <button type="button" onclick="goTo('vForm')" class="p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-amber-500 text-left shadow-sm hover:shadow-md transition">
+          <div class="text-3xl mb-2">👤</div>
+          <h3 class="text-lg font-bold text-slate-900">Soy Colaborador</h3>
+          <p class="text-xs text-slate-500 mt-1">Completa tu evaluación de clima de forma 100% anónima.</p>
+        </button>
+        <button type="button" onclick="openAdmin()" class="p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-sky-500 text-left shadow-sm hover:shadow-md transition">
+          <div class="text-3xl mb-2">🛡️</div>
+          <h3 class="text-lg font-bold text-slate-900">Soy Administrador</h3>
+          <p class="text-xs text-slate-500 mt-1">Accede al Dashboard de Analítica y reportes en Excel.</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 2: DATOS COLABORADOR -->
+    <div id="vForm" class="page-section max-w-md mx-auto w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-md space-y-4">
+      <h3 class="text-xl font-bold text-slate-900">Clasificación de Área</h3>
+      
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Periodo de Evaluación</label>
+        <select id="selPeriod" class="w-full p-3 rounded-xl border text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          <option value="2026 - 1er Semestre">2026 - 1er Semestre</option>
+          <option value="2026 - 2do Semestre">2026 - 2do Semestre</option>
+          <option value="2027 - 1er Semestre">2027 - 1er Semestre</option>
+          <option value="2027 - 2do Semestre">2027 - 2do Semestre</option>
+          <option value="Prueba / Piloto">Prueba / Piloto</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Empresa / Dirección</label>
+        <select id="selComp" onchange="onCompChange()" class="w-full p-3 rounded-xl border text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          <option value="">-- Selecciona Opción --</option>
+          <option value="CLARO">CLARO</option>
+          <option value="BANCO DE GUAYAQUIL">BANCO DE GUAYAQUIL</option>
+          <option value="XTRIM">XTRIM</option>
+          <option value="ADMINISTRACIÓN">ADMINISTRACIÓN</option>
+        </select>
+      </div>
+
+      <div id="boxCamp" class="hidden">
+        <label id="lblCamp" class="block text-xs font-bold text-slate-700 uppercase mb-1">Campaña / Área</label>
+        <select id="selCamp" class="w-full p-3 rounded-xl border text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"></select>
+      </div>
+
+      <button type="button" onclick="startQuiz()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow transition">Comenzar Evaluación ➔</button>
+    </div>
+
+    <!-- PANTALLA 3: PREGUNTAS -->
+    <div id="vQuiz" class="page-section max-w-xl mx-auto w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-md space-y-6">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dimensión</span>
+          <h4 id="qDim" class="text-sm font-bold text-amber-600 uppercase">Mentores</h4>
+        </div>
+        <span id="qNum" class="text-xs font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Pregunta 1/20</span>
+      </div>
+      <p id="qText" class="text-base font-semibold text-slate-800 min-h-[60px] leading-relaxed">Cargando pregunta...</p>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+        <button type="button" onclick="ans(1)" class="p-3 border rounded-xl hover:border-red-500 hover:bg-red-50 text-center transition group">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🗡️</div>
+          <div class="text-xs font-bold text-slate-700">1 Pt</div>
+          <div class="text-[9px] text-slate-400">Espada Rota</div>
+        </button>
+        <button type="button" onclick="ans(2)" class="p-3 border rounded-xl hover:border-orange-500 hover:bg-orange-50 text-center transition group">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🛡️</div>
+          <div class="text-xs font-bold text-slate-700">2 Pts</div>
+          <div class="text-[9px] text-slate-400">Escudo Agrietado</div>
+        </button>
+        <button type="button" onclick="ans(3)" class="p-3 border rounded-xl hover:border-amber-500 hover:bg-amber-50 text-center transition group">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">📜</div>
+          <div class="text-xs font-bold text-slate-700">3 Pts</div>
+          <div class="text-[9px] text-slate-400">Pergamino Std</div>
+        </button>
+        <button type="button" onclick="ans(4)" class="p-3 border rounded-xl hover:border-sky-500 hover:bg-sky-50 text-center transition group">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🧪</div>
+          <div class="text-xs font-bold text-slate-700">4 Pts</div>
+          <div class="text-[9px] text-slate-400">Poción Fuerza</div>
+        </button>
+        <button type="button" onclick="ans(5)" class="p-3 border rounded-xl hover:border-purple-500 hover:bg-purple-50 text-center transition group">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🌟</div>
+          <div class="text-xs font-bold text-slate-700">5 Pts</div>
+          <div class="text-[9px] text-slate-400">Artefacto Leg.</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 4: RESULTADO -->
+    <div id="vEnd" class="page-section max-w-md mx-auto w-full bg-white p-6 rounded-2xl border text-center space-y-4 shadow-lg">
+      <div class="text-5xl">🎉</div>
+      <h3 class="text-2xl font-bold text-slate-900">¡Misión Cumplida!</h3>
+      <p class="text-xs text-slate-500">Tus respuestas han sido registradas exitosamente de forma anónima.</p>
+      <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <span class="text-xs font-bold text-slate-400 uppercase">Tu Nivel de Reino Alcanzado</span>
+        <div id="resRealm" class="text-xl font-black text-amber-600 mt-1">Valhalla</div>
+      </div>
+      <button type="button" onclick="returnFromQuiz()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">Volver al Inicio</button>
+    </div>
+
+    <!-- PANTALLA 5: DASHBOARD ADMIN -->
+    <div id="vAdmin" class="page-section space-y-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-3 justify-between items-center">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Panel de Control Administrador</h3>
+          <p class="text-xs text-slate-500">Analítica global de clima organizacional ALINEA</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="startTestFromAdmin()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow transition">🧪 Probar Evaluaciones</button>
+          <button type="button" onclick="resetDemoData()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">🔄 Cargar Demo</button>
+          <button type="button" onclick="clearData()" class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-xl transition">🗑️ Borrar Todo</button>
+          <button type="button" onclick="exportXLSX()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition">📥 Exportar Excel</button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase">Periodo</label>
+          <select id="filterPeriod" onchange="updateAdmin()" class="p-2 border rounded-lg text-xs font-bold bg-slate-50">
+            <option value="ALL">Todos los Periodos</option>
+            <option value="2026 - 1er Semestre">2026 - 1er Semestre</option>
+            <option value="2026 - 2do Semestre">2026 - 2do Semestre</option>
+            <option value="2027 - 1er Semestre">2027 - 1er Semestre</option>
+            <option value="2027 - 2do Semestre">2027 - 2do Semestre</option>
+            <option value="Prueba / Piloto">Prueba / Piloto</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase">Empresa</label>
+          <select id="filterComp" onchange="updateAdmin()" class="p-2 border rounded-lg text-xs font-bold bg-slate-50">
+            <option value="ALL">Todas las Empresas</option>
+            <option value="CLARO">CLARO</option>
+            <option value="BANCO DE GUAYAQUIL">BANCO DE GUAYAQUIL</option>
+            <option value="XTRIM">XTRIM</option>
+            <option value="ADMINISTRACIÓN">ADMINISTRACIÓN</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Métricas Principales -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-slate-400 uppercase">Reino Dominante</span>
+          <div id="dRealm" class="text-lg font-black text-amber-600 mt-1">--</div>
+          <span class="text-[10px] text-slate-400">Basado en promedio %</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-slate-400 uppercase">Índice Global %</span>
+          <div id="dAvg" class="text-3xl font-black text-slate-900 mt-1">0%</div>
+          <span class="text-[10px] text-emerald-600 font-bold">Fórmula ALINEA</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-slate-400 uppercase">Riesgo Burnout</span>
+          <div id="dBurn" class="text-lg font-bold text-slate-700 mt-1">Bajo</div>
+          <span class="text-[10px] text-slate-400">Dimensión Poción Vida</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-xs font-bold text-slate-400 uppercase">Participación</span>
+          <div id="dCount" class="text-3xl font-black text-sky-600 mt-1">0</div>
+          <span class="text-[10px] text-slate-400">Evaluaciones totales</span>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h4 class="text-xs font-bold text-slate-900 uppercase mb-3">Salud por 5 Dimensiones (Radar)</h4>
+          <div class="h-60 flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h4 class="text-xs font-bold text-slate-900 uppercase mb-3">Comparativo por Áreas</h4>
+          <div class="h-60 flex items-center justify-center">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Respuestas -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h4 class="text-xs font-bold text-slate-900 uppercase">Registros Recientes en Base de Datos</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b bg-slate-50 text-slate-500 font-bold">
+                <th class="p-2.5">Periodo</th>
+                <th class="p-2.5">Empresa</th>
+                <th class="p-2.5">Campaña / Depto</th>
+                <th class="p-2.5">Puntaje</th>
+                <th class="p-2.5">Índice %</th>
+                <th class="p-2.5">Reino</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="6" class="p-3 text-center text-slate-400">Sin datos registrados</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
+    SISTEMA CLIMA-QUEST • <strong>ALINEA</strong>
+  </footer>
+
+  <!-- MODAL ADMIN -->
+  <div id="mAdmin" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-xl">
+      <h3 class="font-bold text-slate-900">Acceso Administrador</h3>
+      <input type="password" id="pAdmin" placeholder="Contraseña" class="w-full p-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+      <div class="flex gap-2">
+        <button type="button" onclick="closeAdmin()" class="flex-1 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancelar</button>
+        <button type="button" onclick="loginAdmin()" class="flex-1 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var db = [];
+    try {
+      db = JSON.parse(localStorage.getItem('cq_db')) || [];
+    } catch(e) { db = []; }
+
+    var isAdminSession = false;
+
+    if (db.length === 0) {
+      loadDemoData();
+    }
+
+    var qList = [
+      {d:"Mentores",t:"Mi Líder me proporciona un mapa claro de los objetivos antes de iniciar una misión."},
+      {d:"Mentores",t:"Siento libertad y autonomía para ejecutar mis tareas sin vigilancia sofocante."},
+      {d:"Mentores",t:"Cuando me equivoco, mi líder me da retroalimentación constructiva para subir de nivel."},
+      {d:"Mentores",t:"Mi líder escucha las propuestas e innovaciones del equipo antes de tomar decisiones."},
+      {d:"Refugio",t:"Cuento con el equipamiento adecuado (software, hardware) para mis misiones."},
+      {d:"Refugio",t:"El espacio físico/digital donde trabajo es un refugio seguro, cómodo y adecuado."},
+      {d:"Refugio",t:"Los procesos e instrucciones no son un laberinto burocrático."},
+      {d:"Refugio",t:"Cuando un recurso o herramienta falla, el equipo de soporte responde a tiempo."},
+      {d:"Hermandad",t:"En mi escuadrón nos apoyamos mutuamente cuando las misiones se vuelven difíciles."},
+      {d:"Hermandad",t:"Existe una alianza de confianza con las demás áreas y la comunicación fluye."},
+      {d:"Hermandad",t:"Se vive una cultura de respeto donde no se toleran comportamientos tóxicos."},
+      {d:"Hermandad",t:"Siento que pertenezco a un equipo con un propósito noble al que me da orgullo representar."},
+      {d:"Oro y Gloria",t:"Cuando hago un esfuerzo extraordinario, recibo el reconocimiento correspondiente."},
+      {d:"Oro y Gloria",t:"Siento que mi compensación y beneficios son justos respecto a la dificultad de mis batallas."},
+      {d:"Oro y Gloria",t:"Veo una ruta clara de progresión para crecer profesionalmente dentro del reino."},
+      {d:"Oro y Gloria",t:"La organización me da oportunidades para aprender nuevas habilidades."},
+      {d:"Poción Vida",t:"Al finalizar la jornada laboral, me queda suficiente energía (HP) para mi vida personal."},
+      {d:"Poción Vida",t:"El ritmo de trabajo y los plazos son realistas, evitando el colapso (burnout)."},
+      {d:"Poción Vida",t:"El reino respeta mis tiempos de descanso y desconexión fuera de horario."},
+      {d:"Poción Vida",t:"La organización se preocupa genuinamente por mi salud física, mental y emocional."}
+    ];
+    var qIdx = 0, answers = [], sPeriod = "", sComp = "", sCamp = "";
+
+    function loadDemoData() {
+      db = [
+        {period: "2026 - 1er Semestre", company: "CLARO", campaign: "Renovación", totalScore: 88, pct: 88, realm: "Valhalla (75-89%)", answers:[{d:"Mentores",s:4},{d:"Refugio",s:5},{d:"Hermandad",s:4},{d:"Oro y Gloria",s:4},{d:"Poción Vida",s:5}]},
+        {period: "2026 - 1er Semestre", company: "ADMINISTRACIÓN", campaign: "Talento Humano", totalScore: 94, pct: 94, realm: "El Dorado (90-100%)", answers:[{d:"Mentores",s:5},{d:"Refugio",s:5},{d:"Hermandad",s:5},{d:"Oro y Gloria",s:4},{d:"Poción Vida",s:5}]},
+        {period: "2026 - 2do Semestre", company: "BANCO DE GUAYAQUIL", campaign: "Colocación", totalScore: 68, pct: 68, realm: "La Comarca (60-74%)", answers:[{d:"Mentores",s:3},{d:"Refugio",s:4},{d:"Hermandad",s:3},{d:"Oro y Gloria",s:3},{d:"Poción Vida",s:4}]}
+      ];
+      saveLocal();
+    }
+
+    function resetDemoData() {
+      loadDemoData();
+      updateAdmin();
+      alert('Se cargaron los datos de ejemplo.');
+    }
+
+    function clearData() {
+      if (confirm('¿Deseas borrar todos los registros de la base de datos?')) {
+        db = [];
+        saveLocal();
+        updateAdmin();
+      }
+    }
+
+    function saveLocal() {
+      try {
+        localStorage.setItem('cq_db', JSON.stringify(db));
+      } catch(e){}
+    }
+
+    function goTo(sectionId) {
+      var sections = document.querySelectorAll('.page-section');
+      sections.forEach(function(s) { s.classList.remove('active'); });
+      var target = document.getElementById(sectionId);
+      if (target) target.classList.add('active');
+    }
+
+    function openAdmin() { document.getElementById('mAdmin').classList.remove('hidden'); }
+    function closeAdmin() { document.getElementById('mAdmin').classList.add('hidden'); }
+
+    function loginAdmin() {
+      if (document.getElementById('pAdmin').value === 'alinea2026') {
+        closeAdmin();
+        isAdminSession = true;
+        document.getElementById('roleBadge').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        goTo('vAdmin');
+        setTimeout(updateAdmin, 100);
+      } else { alert('Contraseña incorrecta'); }
+    }
+
+    function startTestFromAdmin() {
+      goTo('vForm');
+    }
+
+    function returnFromQuiz() {
+      if (isAdminSession) {
+        goTo('vAdmin');
+        updateAdmin();
+      } else {
+        location.reload();
+      }
+    }
+
+    function onCompChange() {
+      var c = document.getElementById('selComp').value;
+      var box = document.getElementById('boxCamp');
+      var sel = document.getElementById('selCamp');
+      var lbl = document.getElementById('lblCamp');
+      
+      sel.innerHTML = '';
+      if (!c) { box.classList.add('hidden'); return; }
+      
+      box.classList.remove('hidden');
+      var opts = ['-- Selecciona --'];
+
+      if (c === 'CLARO') {
+        lbl.innerText = "Campaña / Área";
+        opts = opts.concat(['Renovación', 'Hogar', 'Migración']);
+      } else if (c === 'BANCO DE GUAYAQUIL') {
+        lbl.innerText = "Campaña / Área";
+        opts = opts.concat(['Colocación', 'Avisos']);
+      } else if (c === 'XTRIM') {
+        lbl.innerText = "Campaña / Área";
+        opts = opts.concat(['Fidelización', 'Retención']);
+      } else if (c === 'ADMINISTRACIÓN') {
+        lbl.innerText = "Departamento Administrativo";
+        opts = opts.concat(['Calidad', 'Talento Humano', 'Operaciones', 'Sistemas', 'Servicios Generales']);
+      }
+
+      for (var i = 0; i < opts.length; i++) {
+        var o = document.createElement('option');
+        o.value = opts[i].indexOf('--') === 0 ? '' : opts[i];
+        o.text = opts[i];
+        sel.appendChild(o);
+      }
+    }
+
+    function startQuiz() {
+      sPeriod = document.getElementById('selPeriod').value;
+      sComp = document.getElementById('selComp').value;
+      sCamp = document.getElementById('selCamp').value;
+
+      if (!sComp) { alert('Selecciona tu Empresa o Dirección'); return; }
+      if (!sCamp) { alert('Selecciona tu Campaña o Departamento'); return; }
+
+      qIdx = 0; answers = [];
+      goTo('vQuiz');
+      showQ();
+    }
+
+    function showQ() {
+      document.getElementById('qDim').innerText = qList[qIdx].d;
+      document.getElementById('qNum').innerText = 'Pregunta ' + (qIdx + 1) + '/20';
+      document.getElementById('qText').innerText = qList[qIdx].t;
+    }
+
+    function ans(pts) {
+      answers.push({d: qList[qIdx].d, s: pts});
+      qIdx++;
+      if (qIdx < qList.length) { showQ(); }
+      else {
+        var sum = 0; for (var i = 0; i < answers.length; i++) sum += answers[i].s;
+        var pct = Math.round((sum / 100) * 100);
+        var rName = getRealm(pct);
+        db.push({period: sPeriod, company: sComp, campaign: sCamp, totalScore: sum, pct: pct, realm: rName, answers: answers});
+        saveLocal();
+
+        document.getElementById('resRealm').innerText = rName;
+        goTo('vEnd');
+      }
+    }
+
+    function getRealm(p) {
+      if (p >= 90) return 'El Dorado (90-100%)';
+      if (p >= 75) return 'Valhalla (75-89%)';
+      if (p >= 60) return 'La Comarca (60-74%)';
+      if (p >= 45) return 'Puesto Niebla (45-59%)';
+      if (p >= 30) return 'Pantanogris (30-44%)';
+      return 'Mordor (0-29%)';
+    }
+
+    var radarChartInstance = null;
+    var barChartInstance = null;
+
+    function updateAdmin() {
+      var fp = document.getElementById('filterPeriod').value;
+      var fc = document.getElementById('filterComp').value;
+
+      var filtered = db.filter(function(r) {
+        if (fp !== 'ALL' && r.period !== fp) return false;
+        if (fc !== 'ALL' && r.company !== fc) return false;
+        return true;
+      });
+
+      document.getElementById('dCount').innerText = filtered.length;
+
+      var tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        document.getElementById('dAvg').innerText = '0%';
+        document.getElementById('dRealm').innerText = '--';
+        document.getElementById('dBurn').innerText = 'Bajo';
+        tbody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400">Sin datos para los filtros seleccionados</td></tr>';
+        renderCharts([0,0,0,0,0], {});
+        return;
+      }
+
+      var sum = 0;
+      var dims = ['Mentores', 'Refugio', 'Hermandad', 'Oro y Gloria', 'Poción Vida'];
+      var dimScores = [0, 0, 0, 0, 0];
+      var campScores = {};
+
+      for (var i = 0; i < filtered.length; i++) {
+        var row = filtered[i];
+        sum += row.pct;
+
+        if (row.answers) {
+          for (var j = 0; j < row.answers.length; j++) {
+            var a = row.answers[j];
+            var idx = dims.indexOf(a.d);
+            if (idx !== -1) dimScores[idx] += a.s;
+          }
+        }
+
+        var key = row.campaign;
+        if (!campScores[key]) campScores[key] = { total: 0, count: 0 };
+        campScores[key].total += row.pct;
+        campScores[key].count++;
+
+        var tr = document.createElement('tr');
+        tr.className = "border-b hover:bg-slate-50";
+        tr.innerHTML = '<td class="p-2.5 font-bold text-slate-700">' + row.period + '</td>' +
+                       '<td class="p-2.5">' + row.company + '</td>' +
+                       '<td class="p-2.5">' + row.campaign + '</td>' +
+                       '<td class="p-2.5 font-semibold">' + row.totalScore + ' pts</td>' +
+                       '<td class="p-2.5 font-bold text-sky-600">' + row.pct + '%</td>' +
+                       '<td class="p-2.5 font-semibold text-amber-600">' + row.realm + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      var avg = Math.round(sum / filtered.length);
+      document.getElementById('dAvg').innerText = avg + '%';
+      document.getElementById('dRealm').innerText = getRealm(avg);
+
+      var maxScorePerDim = filtered.length * 20;
+      var dimPcts = dimScores.map(function(s) { return maxScorePerDim > 0 ? Math.round((s / maxScorePerDim) * 100) : 0; });
+      
+      var pvPct = dimPcts[4] || 0;
+      var risk = 'Bajo';
+      if (pvPct < 45 && filtered.length > 0) risk = 'Alto (Crítico)';
+      else if (pvPct < 60 && filtered.length > 0) risk = 'Medio';
+      document.getElementById('dBurn').innerText = risk;
+
+      renderCharts(dimPcts, campScores);
+    }
+
+    function renderCharts(dimPcts, campData) {
+      if (typeof Chart === 'undefined') return;
+
+      try {
+        var radarEl = document.getElementById('radarChart');
+        if (radarEl) {
+          var ctxRadar = radarEl.getContext('2d');
+          if (radarChartInstance) radarChartInstance.destroy();
+
+          radarChartInstance = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+              labels: ['Mentores', 'Refugio', 'Hermandad', 'Oro y Gloria', 'Poción Vida'],
+              datasets: [{
+                label: 'Salud %',
+                data: dimPcts,
+                backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                borderColor: '#d97706',
+                pointBackgroundColor: '#d97706'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { r: { min: 0, max: 100 } }
+            }
+          });
+        }
+      } catch(e) {}
+
+      try {
+        var barEl = document.getElementById('barChart');
+        if (barEl) {
+          var ctxBar = barEl.getContext('2d');
+          if (barChartInstance) barChartInstance.destroy();
+
+          var labels = Object.keys(campData);
+          var values = labels.map(function(k) { return Math.round(campData[k].total / campData[k].count); });
+
+          barChartInstance = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+              labels: labels.length ? labels : ['Sin Datos'],
+              datasets: [{
+                label: 'Índice de Clima %',
+                data: values.length ? values : [0],
+                backgroundColor: '#0284c7'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { y: { min: 0, max: 100 } }
+            }
+          });
+        }
+      } catch(e) {}
+    }
+
+    function exportXLSX() {
+      if (db.length === 0) { alert('No hay respuestas registradas.'); return; }
+      if (typeof XLSX === 'undefined') { alert('Librería de Excel no disponible.'); return; }
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.json_to_sheet(db);
+      XLSX.utils.book_append_sheet(wb, ws, "Resultados");
+      XLSX.writeFile(wb, "Reporte_Clima_Quest.xlsx");
+    }
+  </script>
+</body>
+</html>
+
+  <script>
+    
+  </script>
+</body>
+</html>
